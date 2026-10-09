@@ -134,3 +134,71 @@
 ```text
 \\wsl\$\kali-linux\home\roma
 ```
+
+---
+
+### ЭТАП 6. Установка инструментов (Kali Top 10) и прокачка системы
+*Выполняется в терминале внутри Kali Linux (внутри графической оболочки или через консоль):*
+
+1. **Установка главного арсенала утилит:**
+   По умолчанию Kali в WSL поставляется пустой. Установите топ-10 самых популярных инструментов (Nmap, Wireshark, Metasploit, John critical-tools и др.) одной командой:
+   ```bash
+   sudo apt install kali-tools-top10 -y
+   ```
+
+2. **Включение современной интерактивной оболочки Zsh (По желанию):**
+   Чтобы сделать терминал красивым, с автодополнениями и подсветкой, введите:
+   ```bash
+   kali-tweaks
+   ```
+   В открывшемся псевдографическом меню выберите **Shell**, переключите его на **Zsh**, после чего перезапустите терминал.
+
+---
+
+### ЭТАП 7. Отключение окон авторизации Polkit (Запрос пароля при выключении)
+Если при попытке закрыть, перезагрузить или выключить графическую сессию XFCE у вас всплывает окно *"Authentication is required to power off the system"*, это лечится добавлением JavaScript-правила для службы авторизации.
+
+1. **Создайте файл конфигурации правил Polkit:**
+   ```bash
+   sudo nano /etc/polkit-1/rules.d/45-allow-power-actions.rules
+   ```
+
+2. **Вставьте в файл следующий код целиком:**
+   ```javascript
+   polkit.addRule(function(action, subject) {
+       if ((action.id == "org.freedesktop.login1.power-off" ||
+            action.id == "org.freedesktop.login1.power-off-multiple-sessions" ||
+            action.id == "org.freedesktop.login1.reboot" ||
+            action.id == "org.freedesktop.login1.reboot-multiple-sessions") &&
+           subject.user == "roma") {
+           return polkit.Result.YES;
+       }
+   });
+   ```
+
+3. **Сохраните изменения:** Нажмите `Ctrl + O` -> `Enter` -> `Ctrl + X`.
+
+4. **Перезапустите службу авторизации для применения настроек:**
+   ```bash
+   sudo systemctl restart polkit
+   ```
+
+---
+
+### ЭТАП 8. Создание точки восстановления (Бэкап системы)
+Чтобы в случае неудачных экспериментов не проходить весь этот путь настройки заново, обязательно сделайте чистый слепок готовой системы.
+
+1. Полностью закройте графическое окно Kali Linux.
+2. Откройте **PowerShell Windows** от имени администратора и выполните:
+   ```powershell
+   wsl --shutdown
+   wsl --export kali-linux C:\kali-backup.tar
+   ```
+3. Теперь на вашем диске `C:\` лежит готовый архив `kali-backup.tar`. 
+
+*Если система когда-либо сломается, вы сможете вернуть её к этому идеальному состоянию двумя командами в PowerShell:*
+```powershell
+wsl --unregister kali-linux
+wsl --import kali-linux \$env:USERPROFILE\KaliLinux C:\kali-backup.tar
+```
+
