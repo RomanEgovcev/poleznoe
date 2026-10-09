@@ -2,8 +2,8 @@
 export LANG=en_US.UTF-8
 export LC_ALL=en_US.UTF-8
 
-# --- Шаг 1: DPI ---
-dpi=144
+# --- Шаг 1: DPI (читаем из системы или ставим 144 по умолчанию) ---
+dpi=$(xfconf-query -c xsettings -p /Xft/DPI 2>/dev/null || echo 144)
 while true; do
     clear
     echo "================================================="
@@ -30,8 +30,8 @@ while true; do
     fi
 done
 
-# --- Шаг 2: Панель ---
-panel=38
+# --- Шаг 2: Панель (читаем из системы или ставим 38 по умолчанию) ---
+panel=$(xfconf-query -c xfce4-panel -p /panels/panel-1/size 2>/dev/null || echo 38)
 while true; do
     clear
     echo "================================================="
@@ -58,8 +58,8 @@ while true; do
     fi
 done
 
-# --- Шаг 3: Иконки ---
-icons=64
+# --- Шаг 3: Иконки (читаем из системы или ставим 64 по умолчанию) ---
+icons=$(xfconf-query -c xfce4-desktop -p /desktop-icons/icon-size 2>/dev/null || echo 64)
 while true; do
     clear
     echo "================================================="
